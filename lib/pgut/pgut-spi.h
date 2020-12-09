@@ -3,7 +3,7 @@
  *
  * Portions Copyright (c) 2008-2011, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  * Portions Copyright (c) 2011, Itagaki Takahiro
- * Portions Copyright (c) 2012-2015, The Reorg Development Team
+ * Portions Copyright (c) 2012-2020, The Reorg Development Team
  *-------------------------------------------------------------------------
  */
 
@@ -12,11 +12,8 @@
 
 #include "executor/spi.h"
 
-#if PG_VERSION_NUM < 80400
-
-extern int SPI_execute_with_args(const char *src, int nargs, Oid *argtypes,
-	Datum *values, const char *nulls, bool read_only, long tcount);
-
+#ifdef _MSC_VER
+#define __attribute__(x)
 #endif
 
 extern void execute(int expected, const char *sql);

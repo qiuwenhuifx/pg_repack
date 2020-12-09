@@ -3,7 +3,7 @@
  *
  * Portions Copyright (c) 2008-2011, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  * Portions Copyright (c) 2011, Itagaki Takahiro
- * Portions Copyright (c) 2012-2015, The Reorg Development Team
+ * Portions Copyright (c) 2012-2020, The Reorg Development Team
  *-------------------------------------------------------------------------
  */
 
@@ -29,20 +29,12 @@ termStringInfo(StringInfo str)
 static void
 appendStringInfoVA_s(StringInfo str, const char *fmt, va_list args)
 {
-#if PG_VERSION_NUM >= 90400
 	int needed;
 	while ((needed = appendStringInfoVA(str, fmt, args)) > 0)
 	{
 		/* Double the buffer size and try again. */
 		enlargeStringInfo(str, needed);
 	}
-#else
-	while (!appendStringInfoVA(str, fmt, args))
-	{
-		/* Double the buffer size and try again. */
-		enlargeStringInfo(str, str->maxlen);
-	}
-#endif
 }
 
 /* simple execute */
@@ -115,25 +107,3 @@ execute_with_format_args(int expected, const char *format, int nargs, Oid argtyp
 
 	termStringInfo(&sql);
 }
-
-
-#if PG_VERSION_NUM < 80400
-
-int
-SPI_execute_with_args(const char *src,
-					  int nargs, Oid *argtypes,
-					  Datum *values, const char *nulls,
-					  bool read_only, long tcount)
-{
-	SPIPlanPtr	plan;
-	int			ret;
-
-	plan = SPI_prepare(src, nargs, argtypes);
-	if (plan == NULL)
-		return SPI_result;
-	ret = SPI_execute_plan(plan, values, nulls, read_only, tcount);
-	SPI_freeplan(plan);
-	return ret;
-}
-
-#endif

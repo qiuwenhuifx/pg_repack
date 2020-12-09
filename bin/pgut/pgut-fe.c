@@ -3,7 +3,7 @@
  *
  * Portions Copyright (c) 2008-2011, NIPPON TELEGRAPH AND TELEPHONE CORPORATION
  * Portions Copyright (c) 2011, Itagaki Takahiro
- * Portions Copyright (c) 2012-2015, The Reorg Development Team
+ * Portions Copyright (c) 2012-2020, The Reorg Development Team
  *-------------------------------------------------------------------------
  */
 
@@ -98,6 +98,9 @@ setup_workers(int num_workers)
 					 PQerrorMessage(conn));
 				break;
 			}
+
+			/* Hardcode a search path to avoid injections into public or pg_temp */
+			pgut_command(conn, "SET search_path TO pg_catalog, pg_temp, public", 0, NULL);
 
             /* Make sure each worker connection can work in non-blocking
              * mode.
@@ -814,12 +817,12 @@ help(bool details)
 	printf("  --help                    show this help, then exit\n");
 	printf("  --version                 output version information, then exit\n");
 
-	if (details && (PROGRAM_URL || PROGRAM_EMAIL))
+	if (details && (PROGRAM_URL || PROGRAM_ISSUES))
 	{
 		printf("\n");
 		if (PROGRAM_URL)
 			printf("Read the website for details: <%s>.\n", PROGRAM_URL);
-		if (PROGRAM_EMAIL)
-			printf("Report bugs to <%s>.\n", PROGRAM_EMAIL);
+		if (PROGRAM_ISSUES)
+			printf("Report bugs to <%s>.\n", PROGRAM_ISSUES);
 	}
 }
